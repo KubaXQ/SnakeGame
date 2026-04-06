@@ -23,6 +23,21 @@ int main(int argc, char *argv[])
 		cleanup(window);
 		return 1;
 	}
+	
+	bool running = true;
+	while (running)
+	{
+		SDL_Event event{ 0 };
+		while (SDL_PollEvent(&event))
+		{
+			if (event.type == SDL_EVENT_QUIT) {
+				running = false;
+			}
+		}
+
+
+	}
+
 
 	cleanup(window);
 	
