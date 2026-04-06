@@ -16,6 +16,7 @@ void cleanup(SDLState& state);
 int main(int argc, char *argv[])
 {
 	SDLState state;
+	//SDL3 ERROR HANDLE
 	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR", "ERROR INITIALIZING SDL3",nullptr);
@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
 	int height = 400;
 	state.window = SDL_CreateWindow("Game Window", width, height, 0);
 
+	//Window ERROR HANDLE
 	if (!state.window)
 	{
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR", "Window not created", state.window);
@@ -32,7 +34,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	
-	//rendering
+	//Rendering ERROR HANDLE
 
 	state.render = SDL_CreateRenderer(state.window, nullptr);
 	if (!state.render)
@@ -42,6 +44,8 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	//load game assets
+	SDL_Texture* idleTex = IMG_LoadTexture(state.render, "data/zdj1.png");
 
 	//Main loop
 	bool running = true;
@@ -58,10 +62,12 @@ int main(int argc, char *argv[])
 		SDL_SetRenderDrawColor(state.render, 255, 2, 255,255);
 		SDL_RenderClear(state.render);
 
+		SDL_RenderTexture(state.render, idleTex, nullptr, nullptr);
+
 		SDL_RenderPresent(state.render);
 	}
 
-
+	SDL_DestroyTexture(idleTex);
 	cleanup(state);
 	
 	return 0;
