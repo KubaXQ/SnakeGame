@@ -23,8 +23,8 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 	int width = 800;
-	int height = 400;
-	state.window = SDL_CreateWindow("Game Window", width, height, 0);
+	int height = 600;
+	state.window = SDL_CreateWindow("Game Window", width, height, SDL_WINDOW_RESIZABLE);
 
 	//Window ERROR HANDLE
 	if (!state.window)
@@ -43,9 +43,14 @@ int main(int argc, char *argv[])
 		cleanup(state);
 		return 1;
 	}
+	int logW =640;
+	int logH=320;
+	SDL_SetRenderLogicalPresentation(state.render,logW,logH,SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	//load game assets
-	SDL_Texture* idleTex = IMG_LoadTexture(state.render, "data/zdj1.png");
+	SDL_Texture* idleTex = IMG_LoadTexture(state.render, "data/SNAKE.png");
+	SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
+
 
 	//Main loop
 	bool running = true;
@@ -54,18 +59,40 @@ int main(int argc, char *argv[])
 		SDL_Event event{ 0 };
 		while (SDL_PollEvent(&event))
 		{
-			if (event.type == SDL_EVENT_QUIT) {
+			switch (event.type)
+			{
+			case SDL_EVENT_QUIT:
 				running = false;
+				break;
+			
+			default:
+				break;
 			}
+		
+			
 		}
 
-		SDL_SetRenderDrawColor(state.render, 255, 2, 255,255);
+		SDL_SetRenderDrawColor(state.render, 255, 255, 255,255);
 		SDL_RenderClear(state.render);
 
-		SDL_RenderTexture(state.render, idleTex, nullptr, nullptr);
+		SDL_FRect Snake{
+			.x = 0,
+			.y = 0,
+			.w = 32,
+			.h = 32
+		};
+		SDL_FRect dst{
+			.x = 0,
+			.y = 0,
+			.w = 32,
+			.h = 32
+		};
+
+		SDL_RenderTexture(state.render, idleTex, &Snake, &dst);
 
 		SDL_RenderPresent(state.render);
 	}
+
 
 	SDL_DestroyTexture(idleTex);
 	cleanup(state);
