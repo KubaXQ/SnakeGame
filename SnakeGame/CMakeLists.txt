@@ -1,4 +1,5 @@
 ﻿find_package(SDL3 REQUIRED)
+find_package(SDL3_image REQUIRED)
 add_executable (SnakeGame "SnakeGame.cpp" "SnakeGame.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
@@ -6,4 +7,5 @@ if (CMAKE_VERSION VERSION_GREATER 3.12)
 endif()
 
 
-target_link_libraries(SnakeGame PRIVATE SDL3::SDL3)
+target_link_libraries(SnakeGame PRIVATE SDL3::SDL3 SDL3_image::SDL3_image)
+
