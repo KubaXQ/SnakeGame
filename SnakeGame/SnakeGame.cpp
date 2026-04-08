@@ -8,7 +8,9 @@ struct SDLState
 {
 	SDL_Window* window;
 	SDL_Renderer* render;
+	int width, height, logW, logH;
 };
+bool initialization(SDLState& state);
 void cleanup(SDLState& state);
 
 
@@ -16,41 +18,19 @@ void cleanup(SDLState& state);
 int main(int argc, char *argv[])
 {
 	SDLState state;
-	//SDL3 ERROR HANDLE
-	if (!SDL_Init(SDL_INIT_VIDEO))
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR", "ERROR INITIALIZING SDL3",nullptr);
-		return 1;
-	}
-	int width = 800;
-	int height = 600;
-	state.window = SDL_CreateWindow("Game Window", width, height, SDL_WINDOW_RESIZABLE);
 
-	//Window ERROR HANDLE
-	if (!state.window)
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR", "Window not created", state.window);
-		cleanup(state);
-		return 1;
-	}
-	
-	//Rendering ERROR HANDLE
+	state.width = 1600;
+	state.height = 800;
+	state.logW = 640;
+	state.logH = 320;
 
-	state.render = SDL_CreateRenderer(state.window, nullptr);
-	if (!state.render)
-	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR", "Error creating render", state.window);
-		cleanup(state);
+	if (!initialization(state)) {
 		return 1;
 	}
-	int logW =640;
-	int logH=320;
-	SDL_SetRenderLogicalPresentation(state.render,logW,logH,SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	//load game assets
 	SDL_Texture* idleTex = IMG_LoadTexture(state.render, "data/SNAKE.png");
 	SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
-
 
 	//Main loop
 	bool running = true;
@@ -64,7 +44,10 @@ int main(int argc, char *argv[])
 			case SDL_EVENT_QUIT:
 				running = false;
 				break;
-			
+			case SDL_EVENT_WINDOW_RESIZED:
+				state.width = event.window.data1;
+				state.height = event.window.data2;
+				break;
 			default:
 				break;
 			}
@@ -98,6 +81,37 @@ int main(int argc, char *argv[])
 	cleanup(state);
 	
 	return 0;
+}
+
+bool initialization(SDLState &state) {
+	bool initSucces = true;
+	if (!SDL_Init(SDL_INIT_VIDEO))
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR", "ERROR INITIALIZING SDL3", nullptr);
+		initSucces = false;
+	}
+	state.window = SDL_CreateWindow("Game Window", state.width, state.height, SDL_WINDOW_RESIZABLE);
+
+	//Window ERROR HANDLE
+	if (!state.window)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR", "Window not created", state.window);
+		cleanup(state);
+		initSucces = false;
+	}
+
+	//Rendering ERROR HANDLE
+
+	state.render = SDL_CreateRenderer(state.window, nullptr);
+	if (!state.render)
+	{
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "ERROR", "Error creating render", state.window);
+		cleanup(state);
+		initSucces = false;
+	}
+	//configure Presentation
+	SDL_SetRenderLogicalPresentation(state.render, state.logW, state.logH, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+	return initSucces;
 }
 void cleanup(SDLState &state) 
 {
