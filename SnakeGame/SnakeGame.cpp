@@ -32,6 +32,13 @@ int main(int argc, char *argv[])
 	SDL_Texture* idleTex = IMG_LoadTexture(state.render, "data/SNAKE.png");
 	SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
 
+	//setup game data
+
+	const bool* keys = SDL_GetKeyboardState(nullptr);
+	float snakeX = 0;
+	float snakeY = 0;
+
+
 	//Main loop
 	bool running = true;
 	while (running)
@@ -55,6 +62,8 @@ int main(int argc, char *argv[])
 			
 		}
 
+
+
 		SDL_SetRenderDrawColor(state.render, 255, 255, 255,255);
 		SDL_RenderClear(state.render);
 
@@ -65,8 +74,8 @@ int main(int argc, char *argv[])
 			.h = 32
 		};
 		SDL_FRect dst{
-			.x = 0,
-			.y = 0,
+			.x = snakeX,
+			.y = snakeY,
 			.w = 32,
 			.h = 32
 		};
