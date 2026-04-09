@@ -61,7 +61,19 @@ int main(int argc, char *argv[])
 		
 			
 		}
-
+		//handle movement
+		if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) {
+			snakeX += 1.f;
+		}
+		else if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) {
+			snakeX += -1.f;
+		}
+		else if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
+			snakeY += -1.f;
+		}
+		else if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
+			snakeY += 1.f;
+		}
 
 
 		SDL_SetRenderDrawColor(state.render, 255, 255, 255,255);
