@@ -17,6 +17,7 @@ void cleanup(SDLState& state);
 
 int main(int argc, char *argv[])
 {
+	
 	SDLState state;
 
 	state.width = 1600;
@@ -37,12 +38,15 @@ int main(int argc, char *argv[])
 	const bool* keys = SDL_GetKeyboardState(nullptr);
 	float snakeX = 0;
 	float snakeY = 0;
-
-
+	uint64_t prevTime = SDL_GetTicks();
+	
 	//Main loop
 	bool running = true;
 	while (running)
 	{
+		uint64_t nowTime = SDL_GetTicks();
+		float deltaTime = (nowTime - prevTime) / 1000.f; //converting to seconds
+
 		SDL_Event event{ 0 };
 		while (SDL_PollEvent(&event))
 		{
@@ -63,17 +67,18 @@ int main(int argc, char *argv[])
 		}
 		//handle movement
 		if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) {
-			snakeX += 1.f;
+			snakeX += 100.f * deltaTime;
 		}
 		else if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) {
-			snakeX += -1.f;
+			snakeX += -100.f * deltaTime;
 		}
 		else if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
-			snakeY += -1.f;
+			snakeY += -100.f * deltaTime;
 		}
 		else if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
-			snakeY += 1.f;
+			snakeY += 100.f * deltaTime;
 		}
+	
 
 
 		SDL_SetRenderDrawColor(state.render, 255, 255, 255,255);
@@ -95,6 +100,7 @@ int main(int argc, char *argv[])
 		SDL_RenderTexture(state.render, idleTex, &Snake, &dst);
 
 		SDL_RenderPresent(state.render);
+		prevTime = nowTime;
 	}
 
 
