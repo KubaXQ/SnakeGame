@@ -35,19 +35,31 @@ int main(int argc, char *argv[])
 
 	//setup game data
 	const bool* keys = SDL_GetKeyboardState(nullptr);
-	float snakeX = 0;
-	float snakeY = 0;
+	int snakeX = 5;
+	int snakeY = 5;
 	uint64_t prevTime = SDL_GetTicks();
 	int angle = 0;
 	float dirX = 0;
 	float dirY = 0;
-
+	float moveTimer = 0.0f;
+	float moveDelay = 0.15f;
+	const int TILE_SIZE = 32;
 	//Main loop
 	bool running = true;
 	while (running)
 	{
+
 		uint64_t nowTime = SDL_GetTicks();
 		float deltaTime = (nowTime - prevTime) / 1000.f; //converting to seconds
+
+		moveTimer += deltaTime;
+
+		if (moveTimer >= moveDelay) {
+			moveTimer = 0;
+
+			snakeX += dirX;
+			snakeY += dirY;
+		}
 
 		SDL_FRect Snake{
 			.x = 0,
@@ -55,11 +67,12 @@ int main(int argc, char *argv[])
 			.w = 32,
 			.h = 32
 		};
+
 		SDL_FRect dst{
-			.x = snakeX,
-			.y = snakeY,
-			.w = 32,
-			.h = 32
+		snakeX* TILE_SIZE,
+		snakeY* TILE_SIZE,
+		TILE_SIZE,
+		TILE_SIZE
 		};
 		SDL_FRect snakeTail = { 100.0f, 100.0f, 32.0f, 32.0f };
 
@@ -86,13 +99,13 @@ int main(int argc, char *argv[])
 		
 		if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) {
 			
-			dirX = 100;
+			dirX = 1;
 			dirY = 0;
 			angle = 90;
 			
 		}
 		else if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) {
-			dirX = -100;
+			dirX = -1;
 			dirY = 0;
 			angle = 270;
 			
@@ -100,17 +113,16 @@ int main(int argc, char *argv[])
 		else if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
 			
 			dirX = 0;
-			dirY = -100;
+			dirY = -1;
 			angle = 0;
 		}
 		else if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
 			
 			dirX = 0;
-			dirY = 100;
+			dirY = 1;
 			angle = 180;
 		}
-		snakeX += dirX * deltaTime;
-		snakeY += dirY * deltaTime;
+
 		SDL_SetRenderDrawColor(state.render, 79, 168, 51, 255);
 		SDL_RenderClear(state.render);
 
