@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	float snakeX = 0;
 	float snakeY = 0;
 	uint64_t prevTime = SDL_GetTicks();
-	
+	int angle = 0;
 	//Main loop
 	bool running = true;
 	while (running)
@@ -65,18 +65,24 @@ int main(int argc, char *argv[])
 		
 			
 		}
+		 SDL_PumpEvents();
 		//handle movement
 		if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) {
 			snakeX += 100.f * deltaTime;
+			angle = 90;
 		}
 		else if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) {
 			snakeX += -100.f * deltaTime;
+			angle = 270;
 		}
 		else if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
 			snakeY += -100.f * deltaTime;
+			
+			angle = 0;
 		}
 		else if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
 			snakeY += 100.f * deltaTime;
+			angle = 180;
 		}
 	
 
@@ -97,8 +103,9 @@ int main(int argc, char *argv[])
 			.h = 32
 		};
 
-		SDL_RenderTexture(state.render, idleTex, &Snake, &dst);
-
+		SDL_RenderTextureRotated(state.render, idleTex, &Snake, &dst, angle, nullptr, SDL_FLIP_NONE);
+		
+		
 		SDL_RenderPresent(state.render);
 		prevTime = nowTime;
 	}
