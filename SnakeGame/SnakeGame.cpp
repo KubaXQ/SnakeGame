@@ -34,61 +34,20 @@ int main(int argc, char *argv[])
 	SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
 
 	//setup game data
-
 	const bool* keys = SDL_GetKeyboardState(nullptr);
 	float snakeX = 0;
 	float snakeY = 0;
 	uint64_t prevTime = SDL_GetTicks();
 	int angle = 0;
+	float dirX = 0;
+	float dirY = 0;
+
 	//Main loop
 	bool running = true;
 	while (running)
 	{
 		uint64_t nowTime = SDL_GetTicks();
 		float deltaTime = (nowTime - prevTime) / 1000.f; //converting to seconds
-
-		SDL_Event event{ 0 };
-		while (SDL_PollEvent(&event))
-		{
-			switch (event.type)
-			{
-			case SDL_EVENT_QUIT:
-				running = false;
-				break;
-			case SDL_EVENT_WINDOW_RESIZED:
-				state.width = event.window.data1;
-				state.height = event.window.data2;
-				break;
-			default:
-				break;
-			}
-		
-			
-		}
-		 SDL_PumpEvents();
-		//handle movement
-		if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) {
-			snakeX += 100.f * deltaTime;
-			angle = 90;
-		}
-		else if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) {
-			snakeX += -100.f * deltaTime;
-			angle = 270;
-		}
-		else if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
-			snakeY += -100.f * deltaTime;
-			
-			angle = 0;
-		}
-		else if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
-			snakeY += 100.f * deltaTime;
-			angle = 180;
-		}
-	
-
-
-		SDL_SetRenderDrawColor(state.render, 255, 255, 255,255);
-		SDL_RenderClear(state.render);
 
 		SDL_FRect Snake{
 			.x = 0,
@@ -102,7 +61,64 @@ int main(int argc, char *argv[])
 			.w = 32,
 			.h = 32
 		};
+		SDL_FRect snakeTail = { 100.0f, 100.0f, 32.0f, 32.0f };
 
+		SDL_Event event{ 0 };
+		while (SDL_PollEvent(&event))
+		{
+			switch (event.type)
+			{
+			case SDL_EVENT_QUIT:
+				running = false;
+				break;
+			case SDL_EVENT_WINDOW_RESIZED:
+				state.width = event.window.data1;
+				state.height = event.window.data2;
+				break;
+			
+			default:
+				break;
+			}
+		
+			
+		}
+		//handle movement
+		
+		if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) {
+			
+			dirX = 100;
+			dirY = 0;
+			angle = 90;
+			
+		}
+		else if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) {
+			dirX = -100;
+			dirY = 0;
+			angle = 270;
+			
+		}
+		else if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
+			
+			dirX = 0;
+			dirY = -100;
+			angle = 0;
+		}
+		else if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
+			
+			dirX = 0;
+			dirY = 100;
+			angle = 180;
+		}
+		snakeX += dirX * deltaTime;
+		snakeY += dirY * deltaTime;
+		SDL_SetRenderDrawColor(state.render, 79, 168, 51, 255);
+		SDL_RenderClear(state.render);
+
+		
+
+		//rysownie ogona
+		//SDL_SetRenderDrawColor(state.render, 102, 102, 102, 255);
+		//SDL_RenderFillRect(state.render, &snakeTail);
 		SDL_RenderTextureRotated(state.render, idleTex, &Snake, &dst, angle, nullptr, SDL_FLIP_NONE);
 		
 		
