@@ -2,7 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
-
+#include <vector>
 using namespace std;
 struct SDLState
 {
@@ -37,13 +37,26 @@ int main(int argc, char *argv[])
 	const bool* keys = SDL_GetKeyboardState(nullptr);
 	int snakeX = 5;
 	int snakeY = 5;
+
+	struct Segment {
+		int x, y;
+	};
+	vector<Segment> snake; //SNAKE
+	snake.push_back({ 5, 5 }); 
+	snake.push_back({ 4, 5 });
+	snake.push_back({ 3, 5 });
+
+	vector<Segment> apple; //APPLES
+
+
 	uint64_t prevTime = SDL_GetTicks();
 	int angle = 0;
 	float dirX = 0;
 	float dirY = 0;
 	float moveTimer = 0.0f;
-	float moveDelay = 0.15f;
+	float moveDelay = 0.50f;
 	const int TILE_SIZE = 32;
+
 	//Main loop
 	bool running = true;
 	while (running)
@@ -57,24 +70,17 @@ int main(int argc, char *argv[])
 		if (moveTimer >= moveDelay) {
 			moveTimer = 0;
 
-			snakeX += dirX;
-			snakeY += dirY;
+			Segment newHead = snake[0];
+
+			newHead.x += dirX;
+			newHead.y += dirY;
+
+			snake.insert(snake.begin(), newHead); // Adding new head on a first place
+			snake.pop_back(); // delete last tail
 		}
 
-		SDL_FRect Snake{
-			.x = 0,
-			.y = 0,
-			.w = 32,
-			.h = 32
-		};
-
-		SDL_FRect dst{
-		snakeX* TILE_SIZE,
-		snakeY* TILE_SIZE,
-		TILE_SIZE,
-		TILE_SIZE
-		};
-		SDL_FRect snakeTail = { 100.0f, 100.0f, 32.0f, 32.0f };
+		
+		
 
 		SDL_Event event{ 0 };
 		while (SDL_PollEvent(&event))
@@ -125,13 +131,31 @@ int main(int argc, char *argv[])
 
 		SDL_SetRenderDrawColor(state.render, 79, 168, 51, 255);
 		SDL_RenderClear(state.render);
+		for (int i = 1; i < snake.size(); i++) {
+			auto& s = snake[i];
+			SDL_FRect snakeTail = {
+				s.x * TILE_SIZE,
+				s.y * TILE_SIZE,
+				TILE_SIZE,
+				TILE_SIZE };
+			SDL_SetRenderDrawColor(state.render, 102, 102, 102, 255);
+			SDL_RenderFillRect(state.render, &snakeTail);
 
+		}
+		SDL_FRect dst{
+				snake[0].x* TILE_SIZE,
+				snake[0].y* TILE_SIZE,
+				TILE_SIZE,
+				TILE_SIZE
+		};
+		SDL_RenderTextureRotated(state.render, idleTex, nullptr, &dst, angle, nullptr, SDL_FLIP_NONE);
+		
+		
 		
 
 		//rysownie ogona
 		//SDL_SetRenderDrawColor(state.render, 102, 102, 102, 255);
 		//SDL_RenderFillRect(state.render, &snakeTail);
-		SDL_RenderTextureRotated(state.render, idleTex, &Snake, &dst, angle, nullptr, SDL_FLIP_NONE);
 		
 		
 		SDL_RenderPresent(state.render);
