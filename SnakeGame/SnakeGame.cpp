@@ -30,8 +30,10 @@ int main(int argc, char *argv[])
 	}
 
 	//load game assets
-	SDL_Texture* idleTex = IMG_LoadTexture(state.render, "data/SNAKE.png");
-	SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
+	SDL_Texture* snakeTex = IMG_LoadTexture(state.render, "data/SNAKE.png");
+	SDL_SetTextureScaleMode(snakeTex, SDL_SCALEMODE_NEAREST);
+	SDL_Texture* appleTex = IMG_LoadTexture(state.render, "data/jabko.png");
+	SDL_SetTextureScaleMode(appleTex, SDL_SCALEMODE_NEAREST);
 
 	//setup game data
 	const bool* keys = SDL_GetKeyboardState(nullptr);
@@ -47,7 +49,7 @@ int main(int argc, char *argv[])
 	snake.push_back({ 3, 5 });
 
 	vector<Segment> apple; //APPLES
-
+	apple.push_back({ 1,1 });
 
 	uint64_t prevTime = SDL_GetTicks();
 	int angle = 0;
@@ -148,14 +150,15 @@ int main(int argc, char *argv[])
 				TILE_SIZE,
 				TILE_SIZE
 		};
-		SDL_RenderTextureRotated(state.render, idleTex, nullptr, &dst, angle, nullptr, SDL_FLIP_NONE);
-		
-		
-		
+		SDL_RenderTextureRotated(state.render, snakeTex, nullptr, &dst, angle, nullptr, SDL_FLIP_NONE);
 
-		//rysownie ogona
-		//SDL_SetRenderDrawColor(state.render, 102, 102, 102, 255);
-		//SDL_RenderFillRect(state.render, &snakeTail);
+		SDL_FRect apl{
+				apple[0].x * TILE_SIZE,
+				apple[0].y * TILE_SIZE,
+				TILE_SIZE,
+				TILE_SIZE
+		};
+		SDL_RenderTexture(state.render, appleTex, nullptr, &apl);
 		
 		
 		SDL_RenderPresent(state.render);
@@ -163,7 +166,7 @@ int main(int argc, char *argv[])
 	}
 
 
-	SDL_DestroyTexture(idleTex);
+	SDL_DestroyTexture(snakeTex);
 	cleanup(state);
 	
 	return 0;
