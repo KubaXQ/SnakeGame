@@ -3,6 +3,7 @@
 #include <SDL3/SDL_main.h>
 #include <SDL3_image/SDL_image.h>
 #include <vector>
+#include <random>
 using namespace std;
 struct SDLState
 {
@@ -17,13 +18,14 @@ void cleanup(SDLState& state);
 
 int main(int argc, char *argv[])
 {
-	
+	std::default_random_engine generator;
+	std::uniform_int_distribution<int> distribution(0, 20);
 	SDLState state;
 
 	state.width = 1600;
 	state.height = 800;
 	state.logW = 640;
-	state.logH = 320;
+	state.logH = 640;
 
 	if (!initialization(state)) {
 		return 1;
@@ -100,7 +102,7 @@ int main(int argc, char *argv[])
 			default:
 				break;
 			}
-		
+			
 			
 		}
 		//handle movement
@@ -131,8 +133,10 @@ int main(int argc, char *argv[])
 			angle = 180;
 		}
 
+		SDL_SetRenderDrawColor(state.render, 0, 0, 0, 255);
 		SDL_SetRenderDrawColor(state.render, 79, 168, 51, 255);
-		SDL_RenderClear(state.render);
+		SDL_RenderFillRect(state.render, NULL); // tylko logical area!
+
 		for (int i = 1; i < snake.size(); i++) {
 			auto& s = snake[i];
 			SDL_FRect snakeTail = {
@@ -166,8 +170,12 @@ int main(int argc, char *argv[])
 		};
 		SDL_RenderTexture(state.render, appleTex, nullptr, &apl);
 		if (SDL_HasRectIntersectionFloat(&dst, &appleHitbox)) {
-			cout << apple.size();
 			
+			apple[0].x = distribution(generator);
+			apple[0].y = distribution(generator);
+		}
+		if (dst.x < 0 || dst.y < 0 || dst.x>=state.logW || dst.y>=state.logH) {
+			running = false;
 		}
 		
 		
