@@ -158,7 +158,17 @@ int main(int argc, char *argv[])
 				TILE_SIZE,
 				TILE_SIZE
 		};
+		SDL_FRect appleHitbox = {
+		apl.x + 4,
+		apl.y + 4,
+		apl.w - 8,
+		apl.h - 8
+		};
 		SDL_RenderTexture(state.render, appleTex, nullptr, &apl);
+		if (SDL_HasRectIntersectionFloat(&dst, &appleHitbox)) {
+			cout << apple.size();
+			
+		}
 		
 		
 		SDL_RenderPresent(state.render);
