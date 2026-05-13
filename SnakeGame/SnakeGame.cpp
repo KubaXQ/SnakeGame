@@ -4,6 +4,7 @@
 #include <SDL3_image/SDL_image.h>
 #include <vector>
 #include <random>
+#include <cstdio>
 using namespace std;
 
 struct SDLState
@@ -39,9 +40,6 @@ int main(int argc, char* argv[])
 
 	const bool* keys = SDL_GetKeyboardState(nullptr);
 
-	int snakeX = 5;
-	int snakeY = 5;
-
 	struct Segment {
 		int x, y;
 	};
@@ -63,38 +61,13 @@ int main(int argc, char* argv[])
 	const int TILE_SIZE = 32;
 
 	bool grow = false;
+	bool started = false;
 
 	bool running = true;
 	while (running)
 	{
 		uint64_t nowTime = SDL_GetTicks();
 		float deltaTime = (nowTime - prevTime) / 1000.f;
-
-		moveTimer += deltaTime;
-
-		if (moveTimer >= moveDelay) {
-			moveTimer = 0;
-
-			Segment newHead = snake[0];
-
-			newHead.x += dirX;
-			newHead.y += dirY;
-
-			snake.insert(snake.begin(), newHead);
-
-			for (int i = 1; i < snake.size(); i++)
-			{
-				if (snake[0].x == snake[i].x && snake[0].y == snake[i].y)
-				{
-					running = false;
-				}
-			}
-
-			if (!grow)
-				snake.pop_back();
-			else
-				grow = false;
-		}
 
 		SDL_Event event{ 0 };
 		while (SDL_PollEvent(&event))
@@ -108,30 +81,64 @@ int main(int argc, char* argv[])
 				state.width = event.window.data1;
 				state.height = event.window.data2;
 				break;
+			case SDL_EVENT_KEY_DOWN:
+				if (!started)
+					started = true;
+				break;
 			default:
 				break;
 			}
 		}
 
-		if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) {
-			dirX = 1;
-			dirY = 0;
-			angle = 90;
-		}
-		else if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) {
-			dirX = -1;
-			dirY = 0;
-			angle = 270;
-		}
-		else if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
-			dirX = 0;
-			dirY = -1;
-			angle = 0;
-		}
-		else if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
-			dirX = 0;
-			dirY = 1;
-			angle = 180;
+		if (started)
+		{
+			moveTimer += deltaTime;
+
+			if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) {
+				dirX = 1;
+				dirY = 0;
+				angle = 90;
+			}
+			else if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) {
+				dirX = -1;
+				dirY = 0;
+				angle = 270;
+			}
+			else if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
+				dirX = 0;
+				dirY = -1;
+				angle = 0;
+			}
+			else if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
+				dirX = 0;
+				dirY = 1;
+				angle = 180;
+			}
+
+			if (moveTimer >= moveDelay) {
+				moveTimer = 0;
+
+				Segment newHead = snake[0];
+
+				newHead.x += dirX;
+				newHead.y += dirY;
+
+				snake.insert(snake.begin(), newHead);
+
+				for (int i = 1; i < snake.size(); i++)
+				{
+					if (snake[0].x == snake[i].x && snake[0].y == snake[i].y)
+					{
+						printf("GAME OVER\n");
+						running = false;
+					}
+				}
+
+				if (!grow)
+					snake.pop_back();
+				else
+					grow = false;
+			}
 		}
 
 		SDL_SetRenderDrawColor(state.render, 0, 0, 0, 255);
@@ -173,7 +180,7 @@ int main(int argc, char* argv[])
 
 		SDL_RenderTexture(state.render, appleTex, nullptr, &apl);
 
-		if (SDL_HasRectIntersectionFloat(&dst, &appleHitbox))
+		if (started && SDL_HasRectIntersectionFloat(&dst, &appleHitbox))
 		{
 			grow = true;
 
@@ -197,7 +204,8 @@ int main(int argc, char* argv[])
 			} while (collision);
 		}
 
-		if (dst.x < 0 || dst.y < 0 || dst.x >= state.logW || dst.y >= state.logH) {
+		if (started && (dst.x < 0 || dst.y < 0 || dst.x >= state.logW || dst.y >= state.logH)) {
+			printf("GAME OVER\n");
 			running = false;
 		}
 
