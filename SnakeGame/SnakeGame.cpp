@@ -82,6 +82,14 @@ int main(int argc, char* argv[])
 
 			snake.insert(snake.begin(), newHead);
 
+			for (int i = 1; i < snake.size(); i++)
+			{
+				if (snake[0].x == snake[i].x && snake[0].y == snake[i].y)
+				{
+					running = false;
+				}
+			}
+
 			if (!grow)
 				snake.pop_back();
 			else
